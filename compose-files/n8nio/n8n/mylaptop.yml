@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  automation:
+    image: n8nio/n8n:latest
+    ports:
+      - published: 5678
+        target: 5678
+        mode: host
+    volumes:
+      - source: data
+        target: /root/.n8n
+        type: volume
+volumes:
+  data:
