@@ -1,0 +1,83 @@
+version: "3.8"
+x-commons: &common
+    deploy:
+        restart_policy:
+            condition: on-failure
+            delay: "5s"
+    extra_hosts:
+        - "host:172.18.0.1"
+    dns_search:
+        - "weblite.me"
+        - "dev.weblite.me"
+        - "weblite.im"
+services:
+    prometheus:
+        image: prom/prometheus
+        ports:
+            - target: 9090
+              published: 9090
+              mode: host
+        configs:
+            - source: prom_config
+              target: /etc/prometheus/prometheus.yml
+        volumes:
+            - type: volume
+              source: prom
+              target: /prometheus
+        networks:
+            intra:
+                aliases:
+                    - prometheus
+                    - prom
+        <<: *common
+    alertmanager: 
+        image: prom/alertmanager
+        ports:
+            - target: 9093
+              published: 9093
+              mode: host
+        configs: 
+            - source: alert_config
+              target: /etc/alertmanager/alertmanager.yml
+        volumes:
+            - type: volume
+              source: alertmanager
+              target: /alertmanager
+        networks:
+            intra:
+                aliases:
+                    - alertmanager
+        <<: *common
+    grafana:
+        image: grafana/grafana
+        ports:
+            - target: 9091
+              published: 9091
+              mode: host
+        configs:
+            - source: grafana_config
+              target: /etc/grafana/grafana.ini
+        volumes:
+            - type: volume
+              source: grafana
+              target: /var/lib/grafana
+        networks:
+            intra:
+                aliases:
+                    - grafana
+        env_file:
+            - grafana.env
+        <<: *common
+configs:
+    prom_config:
+        file: prometheus.yml
+    alert_config:
+        file: alertmanager.yml
+    grafana_config:
+        file: grafana.ini
+volumes:
+    alertmanager:
+    grafana:
+    prom:
+networks:
+    intra:
