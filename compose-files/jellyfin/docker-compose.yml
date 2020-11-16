@@ -1,0 +1,24 @@
+version: '3.8'
+x-commons: &commons
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    volumes:
+      - type: bind
+        source: /var/cache/jellyfin
+        target: /cache
+      - type: bind
+        source: /var/lib/jellyfin
+        target: /var/lib/jellyfin
+      - type: bind
+        source: /repos/media/public
+        target: /repos/media/public
+      - type: bind
+        source: /var/log/jellyfin
+        target: /config/log
+    ports:
+      - published: 8096
+        target: 8096
+        mode: host
+    env_file: jellyfin.env
